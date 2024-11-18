@@ -16,7 +16,10 @@ This tool is actively developed and still a work in progress. Join the Discord s
 
 ## Using qBittorrent's built-in feature (works only with qBittorrent)
 
-1. Go to qBittorrent -> Options -> Downloads -> make sure `Excluded file names` is checked -> Set the exclusion list found [here](https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist) or create your own.
+1. Go to qBittorrent -> Options -> Downloads -> make sure `Excluded file names` is checked -> Set an exclusion list.
+   - [blacklist](https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist)
+   - [permissive blacklist](https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist_permissive)
+   - create your own
 2. Start cleanuperr with `QUEUECLEANER__ENABLED` set to `true`.
 3. cleanuperr will execute a queue cleaner cron job at every 5 minutes that will:
    1. go through all items from Sonarr/Radarr's queue.
