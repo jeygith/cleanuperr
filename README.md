@@ -1,10 +1,16 @@
 # cleanuperr
 
-### This tool is actively developed and not yet stable. Join the discord server if you want to get in touch with me as soon as possible (or if you just want to be informed of new releases), so we can squash those pesky bugs together: https://discord.gg/cJYPs9Bt
+cleanuperr is a tool for automating the cleanup of unwanted or blocked files in Sonarr, Radarr, and supported download clients like qBittorrent. It removes incomplete or blocked downloads, updates queues, and enforces blacklists or whitelists to manage file selection. After removing blocked content, cleanuperr can also trigger a search to replace the deleted shows/movies.
+
+The tool supports both qBittorrent's built-in exclusion features and its own blocklist-based system. Binaries for all platforms are provided, along with Docker images for easy deployment.
+
+Refer to the [Environment variables](#Environment-variables) section for detailed configuration instructions and the [Setup](#Setup) section for an in-depth explanation of the cleanup process.
 
 ## Important note
 
 Only the <b>latest versions</b> of qBittorrent, Deluge, Sonarr etc. are supported, or earlier versions that have the same API as the latest version.
+
+This tool is actively developed and still a work in progress. Join the Discord server if you want to reach out to me quickly (or just stay updated on new releases) so we can squash those pesky bugs together: https://discord.gg/cJYPs9Bt
 
 # Setup
 
