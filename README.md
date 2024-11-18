@@ -2,6 +2,8 @@
 
 cleanuperr is a tool for automating the cleanup of unwanted or blocked files in Sonarr, Radarr, and supported download clients like qBittorrent. It removes incomplete or blocked downloads, updates queues, and enforces blacklists or whitelists to manage file selection. After removing blocked content, cleanuperr can also trigger a search to replace the deleted shows/movies.
 
+cleanuperr was created primarily to address malicious files, such as `*.lnk` or `*.zipx`, that were getting stuck in Sonarr/Radarr and required manual intervention. Some of the reddit posts that made cleanuperr come to life can be found [here](https://www.reddit.com/r/sonarr/comments/1gqnx16/psa_sonarr_downloaded_a_virus/), [here](https://www.reddit.com/r/sonarr/comments/1gqwklr/sonar_downloaded_a_mkv_file_which_looked_like_a/), [here](https://www.reddit.com/r/sonarr/comments/1gpw2wa/downloaded_waiting_to_import/) and [here](https://www.reddit.com/r/sonarr/comments/1gpi344/downloads_not_importing_no_files_found/).
+
 The tool supports both qBittorrent's built-in exclusion features and its own blocklist-based system. Binaries for all platforms are provided, along with Docker images for easy deployment.
 
 Refer to the [Environment variables](#Environment-variables) section for detailed configuration instructions and the [Setup](#Setup) section for an in-depth explanation of the cleanup process.
@@ -127,9 +129,9 @@ services:
 |||||
 | CONTENTBLOCKER__ENABLED | No | Enable or disable the content blocker | false |
 | CONTENTBLOCKER__BLACKLIST__ENABLED | Yes if content blocker is enabled and whitelist is not enabled | Enable or disable the blacklist | false |
-| CONTENTBLOCKER__BLACKLIST__PATH | Yes if blacklist is enabled | Path to the blacklist (local file or url) | empty |
+| CONTENTBLOCKER__BLACKLIST__PATH | Yes if blacklist is enabled | Path to the blacklist (local file or url); Needs to be json compatible | empty |
 | CONTENTBLOCKER__WHITELIST__ENABLED | Yes if content blocker is enabled and blacklist is not enabled | Enable or disable the whitelist | false |
-| CONTENTBLOCKER__BLACKLIST__PATH | Yes if whitelist is enabled | Path to the whitelist (local file or url) | empty |
+| CONTENTBLOCKER__BLACKLIST__PATH | Yes if whitelist is enabled | Path to the whitelist (local file or url); Needs to be json compatible | empty |
 |||||
 | QBITTORRENT__ENABLED | No | Enable or disable qBittorrent | true |
 | QBITTORRENT__URL | Yes if qBittorrent is enabled | qBittorrent instance url | http://localhost:8112 |
@@ -157,8 +159,9 @@ services:
 ### To be noted
 
 1. The blacklist and the whitelist can not be both enabled at the same time.
-2. Only one download client can be enabled at a time. If you have more than one download client, you should deploy multiple instances of cleanuperr.
-3. The blocklists (blacklist/whitelist) should have a single pattern on each line and supports the following:
+2. The queue cleaner and content blocker can be enabled or disabled separately, if you want to run only one of them.
+3. Only one download client can be enabled at a time. If you have more than one download client, you should deploy multiple instances of cleanuperr.
+4. The blocklists (blacklist/whitelist) should have a single pattern on each line and supports the following:
 ```
 *example      // file name ends with "example"
 example*      // file name starts with "example"
@@ -166,7 +169,7 @@ example*      // file name starts with "example"
 example       // file name is exactly the word "example"
 <ANY_REGEX>   // regex
 ```
-4. Multiple Sonarr/Radarr instances can be specified using this format, where `<NUMBER>` starts from 0:
+5. Multiple Sonarr/Radarr instances can be specified using this format, where `<NUMBER>` starts from 0:
 ```
 SONARR__INSTANCES__<NUMBER>__URL
 SONARR__INSTANCES__<NUMBER>__APIKEY
