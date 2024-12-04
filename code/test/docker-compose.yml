@@ -168,12 +168,13 @@ services:
     restart: unless-stopped
 
   cleanuperr:
-    image: flaminel/cleanuperr:latest
+    image: ghcr.io/flmorg/cleanuperr:latest
     container_name: cleanuperr
     environment:
       - LOGGING__LOGLEVEL=Debug
       - LOGGING__FILE__ENABLED=false
       - LOGGING__FILE__PATH=/var/logs
+      - LOGGING__ENHANCED=true
 
       - TRIGGERS__QUEUECLEANER=0/30 * * * * ?
       - TRIGGERS__CONTENTBLOCKER=0/30 * * * * ?
@@ -203,6 +204,7 @@ services:
       # - TRANSMISSION__PASSWORD=testing
 
       - SONARR__ENABLED=true
+      - SONARR__SEARCHTYPE=Episode
       - SONARR__INSTANCES__0__URL=http://sonarr:8989
       - SONARR__INSTANCES__0__APIKEY=96736c3eb3144936b8f1d62d27be8cee
 

@@ -59,29 +59,6 @@ This tool is actively developed and still a work in progress. Join the Discord s
 
 ## Usage
 
-### Docker
-
-```
-docker run -d \
-    -e TRIGGERS__QUEUECLEANER="0 0/5 * * * ?" \
-    -e QBITTORRENT__ENABLED=true \
-    -e QBITTORRENT__URL="http://localhost:8080" \
-    -e QBITTORRENT__USERNAME="user" \
-    -e QBITTORRENT__PASSWORD="pass" \
-    -e SONARR__ENABLED=true \
-    -e SONARR__INSTANCES__0__URL="http://localhost:8989" \
-    -e SONARR__INSTANCES__0__APIKEY="secret1" \
-    -e SONARR__INSTANCES__1__URL="http://localhost:8990" \
-    -e SONARR__INSTANCES__1__APIKEY="secret2" \
-    -e RADARR__ENABLED=true \
-    -e RADARR__INSTANCES__0__URL="http://localhost:7878" \
-    -e RADARR__INSTANCES__0__APIKEY="secret3" \
-    -e RADARR__INSTANCES__1__URL="http://localhost:7879" \
-    -e RADARR__INSTANCES__1__APIKEY="secret4" \
-    ...
-    flaminel/cleanuperr:latest
-```
-
 ### Docker compose yaml
 
 ```
@@ -94,6 +71,7 @@ services:
       - LOGGING__LOGLEVEL=Information
       - LOGGING__FILE__ENABLED=false
       - LOGGING__FILE__PATH=/var/logs/
+      - LOGGING__ENHANCED=true
 
       - TRIGGERS__QUEUECLEANER=0 0/5 * * * ?
       - TRIGGERS__CONTENTBLOCKER=0 0/5 * * * ?
@@ -123,6 +101,7 @@ services:
       # - TRANSMISSION__PASSWORD=testing
 
       - SONARR__ENABLED=true
+      - SONARR__SEARCHTYPE=Episode
       - SONARR__INSTANCES__0__URL=http://localhost:8989
       - SONARR__INSTANCES__0__APIKEY=secret1
       - SONARR__INSTANCES__1__URL=http://localhost:8990
@@ -133,7 +112,7 @@ services:
       - RADARR__INSTANCES__0__APIKEY=secret3
       - RADARR__INSTANCES__1__URL=http://localhost:7879
       - RADARR__INSTANCES__1__APIKEY=secret4
-    image: flaminel/cleanuperr:latest
+    image: ghcr.io/flmorg/cleanuperr:latest
     restart: unless-stopped
 ```
 
@@ -144,6 +123,7 @@ services:
 | LOGGING__LOGLEVEL | No | Can be `Verbose`, `Debug`, `Information`, `Warning`, `Error` or `Fatal` | `Information` |
 | LOGGING__FILE__ENABLED | No | Enable or disable logging to file | false |
 | LOGGING__FILE__PATH | No | Directory where to save the log files | empty |
+| LOGGING__ENHANCED | No | Enhance logs whenever possible<br>A more detailed description is provided [here](variables.md#LOGGING__ENHANCED) | true |
 |||||
 | TRIGGERS__QUEUECLEANER | Yes if queue cleaner is enabled | [Quartz cron trigger](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) | 0 0/5 * * * ? |
 | TRIGGERS__CONTENTBLOCKER | Yes if content blocker is enabled | [Quartz cron trigger](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) | 0 0/5 * * * ? |
@@ -172,6 +152,7 @@ services:
 | TRANSMISSION__PASSWORD | No | Transmission password | empty |
 |||||
 | SONARR__ENABLED | No | Enable or disable Sonarr cleanup  | true |
+| SONARR__SEARCHTYPE | No | What to search for after removing a queue item<br>Can be `Episode`, `Season` or `Series` | `Episode` |
 | SONARR__INSTANCES__0__URL | Yes | First Sonarr instance url | http://localhost:8989 |
 | SONARR__INSTANCES__0__APIKEY | Yes | First Sonarr instance API key | empty |
 |||||
