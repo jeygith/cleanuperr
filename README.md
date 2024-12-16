@@ -24,7 +24,7 @@ Only the **latest versions** of the following apps are supported, or earlier ver
 
 This tool is actively developed and still a work in progress. Join the Discord server if you want to reach out to me quickly (or just stay updated on new releases) so we can squash those pesky bugs together:
 
-> https://discord.gg/cJYPs9Bt
+> https://discord.gg/sWggpnmGNY
 
 # How it works
 
