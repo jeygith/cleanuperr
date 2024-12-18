@@ -1,0 +1,115 @@
+deployment:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    maxSurge: 1
+    maxUnavailable: 0
+  containers:
+    - name: qbit
+      image:
+        repository: ghcr.io/flmorg/cleanuperr
+        tag: latest
+      env:
+        - name: LOGGING__LOGLEVEL
+          value: Information
+        - name: LOGGING__FILE__ENABLED
+          value: "true"
+        - name: LOGGING__FILE__PATH
+          value: /var/logs
+        - name: LOGGING__ENHANCED
+          value: "true"
+        - name: TRIGGERS__QUEUECLEANER
+          value: 0 0/5 * * * ?
+        - name: TRIGGERS__CONTENTBLOCKER
+          value: 0 0/5 * * * ?
+        - name: QUEUECLEANER__ENABLED
+          value: "true"
+        - name: QUEUECLEANER__RUNSEQUENTIALLY
+          value: "true"
+        - name: QUEUECLEANER__IMPORT_FAILED_MAX_STRIKES
+          value: "3"
+        - name: QUEUECLEANER__STALLED_MAX_STRIKES
+          value: "3"
+        - name: CONTENTBLOCKER__ENABLED
+          value: "true"
+        - name: CONTENTBLOCKER__BLACKLIST__ENABLED
+          value: "true"
+        - name: CONTENTBLOCKER__BLACKLIST__PATH
+          value: https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist
+        - name: DOWNLOAD_CLIENT
+          value: qbittorrent
+        - name: QBITTORRENT__URL
+          value: http://service.qbittorrent-videos.svc.cluster.local
+        - name: SONARR__ENABLED
+          value: "true"
+        - name: SONARR__SEARCHTYPE
+          value: Episode
+        - name: SONARR__INSTANCES__0__URL
+          value: http://service.sonarr-low-res.svc.cluster.local
+        - name: SONARR__INSTANCES__1__URL
+          value: http://service.sonarr-high-res.svc.cluster.local
+        - name: RADARR__ENABLED
+          value: "true"
+        - name: RADARR__INSTANCES__0__URL
+          value: http://service.radarr-low-res.svc.cluster.local
+        - name: RADARR__INSTANCES__1__URL
+          value: http://service.radarr-high-res.svc.cluster.local
+      envFromSecret:
+        - secretName: qbit-auth
+          envs:
+            - name: QBITTORRENT__USERNAME
+              key: QBIT_USER
+            - name: QBITTORRENT__PASSWORD
+              key: QBIT_PASS
+        - secretName: sonarr-auth
+          envs:
+            - name: SONARR__INSTANCES__0__APIKEY
+              key: SNRL_API_KEY
+            - name: SONARR__INSTANCES__1__APIKEY
+              key: SNRH_API_KEY
+        - secretName: radarr-auth
+          envs:
+            - name: RADARR__INSTANCES__0__APIKEY
+              key: RDRL_API_KEY
+            - name: RADARR__INSTANCES__1__APIKEY
+              key: RDRH_API_KEY
+      resources:
+        requests:
+          cpu: 0m
+          memory: 0Mi
+        limits:
+          cpu: 1000m
+          memory: 1000Mi
+      volumeMounts:
+        - name: storage
+          mountPath: /var/logs
+          subPath: cleanuperr/logs
+  volumes:
+    - name: storage
+      type: pvc
+      typeName: storage-pvc
+
+pvcs:
+  - name: storage-pvc
+    storageClassName: local-path-persistent
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    volumeMode: Filesystem
+
+vaultSecrets:
+  - name: qbit-auth
+    path: secrets/qbittorrent
+    templates:
+      QBIT_USER: "{% .Secrets.username %}"
+      QBIT_PASS: "{% .Secrets.password %}"
+  - name: radarr-auth
+    path: secrets/radarr
+    templates:
+      RDRL_API_KEY: "{% .Secrets.low_api_key %}"
+      RDRH_API_KEY: "{% .Secrets.high_api_key %}"
+  - name: sonarr-auth
+    path: secrets/sonarr
+    templates:
+      SNRL_API_KEY: "{% .Secrets.low_api_key %}"
+      SNRH_API_KEY: "{% .Secrets.high_api_key %}"
