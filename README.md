@@ -116,14 +116,12 @@ services:
 
       - SONARR__ENABLED=true
       - SONARR__SEARCHTYPE=Episode
-      - SONARR__STALLED_MAX_STRIKES=5
       - SONARR__INSTANCES__0__URL=http://localhost:8989
       - SONARR__INSTANCES__0__APIKEY=secret1
       - SONARR__INSTANCES__1__URL=http://localhost:8990
       - SONARR__INSTANCES__1__APIKEY=secret2
 
       - RADARR__ENABLED=true
-      - RADARR__STALLED_MAX_STRIKES=5
       - RADARR__INSTANCES__0__URL=http://localhost:7878
       - RADARR__INSTANCES__0__APIKEY=secret3
       - RADARR__INSTANCES__1__URL=http://localhost:7879
