@@ -98,7 +98,7 @@ services:
       - CONTENTBLOCKER__BLACKLIST__PATH=https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist
       # OR
       # - CONTENTBLOCKER__WHITELIST__ENABLED=true
-      # - CONTENTBLOCKER__BLACKLIST__PATH=https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/whitelist
+      # - CONTENTBLOCKER__WHITELIST__PATH=https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/whitelist
 
       - DOWNLOAD_CLIENT=qBittorrent
       - QBITTORRENT__URL=http://localhost:8080
@@ -151,7 +151,7 @@ services:
 | CONTENTBLOCKER__BLACKLIST__ENABLED | Yes if content blocker is enabled and whitelist is not enabled | Enable or disable the blacklist | false |
 | CONTENTBLOCKER__BLACKLIST__PATH | Yes if blacklist is enabled | Path to the blacklist (local file or url)<br>Needs to be json compatible | empty |
 | CONTENTBLOCKER__WHITELIST__ENABLED | Yes if content blocker is enabled and blacklist is not enabled | Enable or disable the whitelist | false |
-| CONTENTBLOCKER__BLACKLIST__PATH | Yes if whitelist is enabled | Path to the whitelist (local file or url)<br>Needs to be json compatible | empty |
+| CONTENTBLOCKER__WHITELIST__PATH | Yes if whitelist is enabled | Path to the whitelist (local file or url)<br>Needs to be json compatible | empty |
 |||||
 | DOWNLOAD_CLIENT | No | Download client that is used by *arrs<br>Can be `qbittorrent`, `deluge` or `transmission` | `qbittorrent` |
 | QBITTORRENT__URL | No | qBittorrent instance url | http://localhost:8112 |

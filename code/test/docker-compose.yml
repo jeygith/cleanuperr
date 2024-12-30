@@ -189,7 +189,7 @@ services:
       - CONTENTBLOCKER__BLACKLIST__PATH=https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist
       # OR
       # - CONTENTBLOCKER__WHITELIST__ENABLED=true
-      # - CONTENTBLOCKER__BLACKLIST__PATH=https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/whitelist
+      # - CONTENTBLOCKER__WHITELIST__PATH=https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/whitelist
 
       - DOWNLOAD_CLIENT=qbittorrent
       - QBITTORRENT__URL=http://qbittorrent:8080
