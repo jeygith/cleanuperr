@@ -1,4 +1,4 @@
-# cleanuperr
+# <img width="24px" src="./Logo/256.png" alt="cleanuperr"></img> cleanuperr
 
 cleanuperr is a tool for automating the cleanup of unwanted or blocked files in Sonarr, Radarr, and supported download clients like qBittorrent. It removes incomplete or blocked downloads, updates queues, and enforces blacklists or whitelists to manage file selection. After removing blocked content, cleanuperr can also trigger a search to replace the deleted shows/movies.
 
