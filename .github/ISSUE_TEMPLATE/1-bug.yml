@@ -7,6 +7,15 @@ body:
     attributes:
       value: |
         Thanks for taking the time to improve cleanuperr!
+  - type: checkboxes
+    id: init
+    attributes:
+      label: "Before submitting a bug report, I have:"
+      options:
+        - label: Reviewed the documentation.
+          required: true
+        - label: Ensured I am using the latest version.
+          required: true
   - type: textarea
     id: what-happened
     attributes:
