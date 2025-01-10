@@ -63,7 +63,7 @@ This tool is actively developed and still a work in progress. Join the Discord s
 
 ## Using cleanuperr's blocklist (works with all supported download clients)
 
-1. Set both `QUEUECLEANER_ENABLED` and `CONTENTBLOCKER_ENABLED` to `true` in your environment variables.
+1. Set both `QUEUECLEANER__ENABLED` and `CONTENTBLOCKER_ENABLED` to `true` in your environment variables.
 2. Configure and enable either a **blacklist** or a **whitelist** as described in the [Environment variables](#Environment-variables) section.
 3. Once configured, cleanuperr will perform the following tasks:
    - Execute the **content blocker** job, as explained in the [How it works](#how-it-works) section.
@@ -71,7 +71,7 @@ This tool is actively developed and still a work in progress. Join the Discord s
 
 ## Using cleanuperr just for failed *arr imports (works for Usenet users as well)
 
-1. Set `QUEUECLEANER_ENABLED` to `true`.
+1. Set `QUEUECLEANER__ENABLED` to `true`.
 2. Set `QUEUECLEANER__IMPORT_FAILED_MAX_STRIKES` to a desired value.
 3. Set `DOWNLOAD_CLIENT` to `none`.
 
