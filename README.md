@@ -221,13 +221,13 @@ services:
 | RADARR__ENABLED | No | Enable or disable Radarr cleanup  | false |
 | RADARR__BLOCK__TYPE | No | Block type<br>Can be `blacklist` or `whitelist` | `blacklist` |
 | RADARR__BLOCK__PATH | No | Path to the blocklist (local file or url)<br>Needs to be json compatible | empty |
-| RADARR__INSTANCES__0__URL | No | First Radarr instance url | http://localhost:8989 |
+| RADARR__INSTANCES__0__URL | No | First Radarr instance url | http://localhost:7878 |
 | RADARR__INSTANCES__0__APIKEY | No | First Radarr instance API key | empty |
 |||||
 | LIDARR__ENABLED | No | Enable or disable LIDARR cleanup  | false |
 | LIDARR__BLOCK__TYPE | No | Block type<br>Can be `blacklist` or `whitelist` | `blacklist` |
 | LIDARR__BLOCK__PATH | No | Path to the blocklist (local file or url)<br>Needs to be json compatible | empty |
-| LIDARR__INSTANCES__0__URL | No | First LIDARR instance url | http://localhost:8989 |
+| LIDARR__INSTANCES__0__URL | No | First LIDARR instance url | http://localhost:8686 |
 | LIDARR__INSTANCES__0__APIKEY | No | First LIDARR instance API key | empty |
 </details>
 
