@@ -1,3 +1,6 @@
+using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
+using Common.Configuration.ContentBlocker;
 using Common.Configuration.DownloadClient;
 using Common.Configuration.QueueCleaner;
 using Domain.Models.Deluge.Response;
@@ -30,6 +33,7 @@ public sealed class DelugeService : DownloadServiceBase
         await _client.LoginAsync();
     }
 
+    /// <inheritdoc/>
     public override async Task<RemoveResult> ShouldRemoveFromArrQueueAsync(string hash)
     {
         hash = hash.ToLowerInvariant();
@@ -70,7 +74,13 @@ public sealed class DelugeService : DownloadServiceBase
         return result;
     }
 
-    public override async Task BlockUnwantedFilesAsync(string hash)
+    /// <inheritdoc/>
+    public override async Task<bool> BlockUnwantedFilesAsync(
+        string hash,
+        BlocklistType blocklistType,
+        ConcurrentBag<string> patterns,
+        ConcurrentBag<Regex> regexes
+    )
     {
         hash = hash.ToLowerInvariant();
 
@@ -79,14 +89,14 @@ public sealed class DelugeService : DownloadServiceBase
         if (status?.Hash is null)
         {
             _logger.LogDebug("failed to find torrent {hash} in the download client", hash);
-            return;
+            return false;
         }
         
         if (_queueCleanerConfig.StalledIgnorePrivate && status.Private)
         {
             // ignore private trackers
             _logger.LogDebug("skip files check | download is private | {name}", status.Name);
-            return;
+            return false;
         }
         
         DelugeContents? contents = null;
@@ -102,18 +112,27 @@ public sealed class DelugeService : DownloadServiceBase
 
         if (contents is null)
         {
-            return;
+            return false;
         }
         
         Dictionary<int, int> priorities = [];
         bool hasPriorityUpdates = false;
+        long totalFiles = 0;
+        long totalUnwantedFiles = 0;
 
         ProcessFiles(contents.Contents, (name, file) =>
         {
+            totalFiles++;
             int priority = file.Priority;
 
-            if (file.Priority is not 0 && !_filenameEvaluator.IsValid(name))
+            if (file.Priority is 0)
             {
+                totalUnwantedFiles++;
+            }
+
+            if (file.Priority is not 0 && !_filenameEvaluator.IsValid(name, blocklistType, patterns, regexes))
+            {
+                totalUnwantedFiles++;
                 priority = 0;
                 hasPriorityUpdates = true;
                 _logger.LogInformation("unwanted file found | {file}", file.Path);
@@ -124,7 +143,7 @@ public sealed class DelugeService : DownloadServiceBase
 
         if (!hasPriorityUpdates)
         {
-            return;
+            return false;
         }
         
         _logger.LogDebug("changing priorities | torrent {hash}", hash);
@@ -134,7 +153,23 @@ public sealed class DelugeService : DownloadServiceBase
             .Select(x => x.Value)
             .ToList();
 
+        if (totalUnwantedFiles == totalFiles)
+        {
+            // Skip marking files as unwanted. The download will be removed completely.
+            return true;
+        }
+
         await _client.ChangeFilesPriority(hash, sortedPriorities);
+
+        return false;
+    }
+    
+    /// <inheritdoc/>
+    public override async Task Delete(string hash)
+    {
+        hash = hash.ToLowerInvariant();
+        
+        await _client.DeleteTorrent(hash);
     }
     
     private bool IsItemStuckAndShouldRemove(TorrentStatus status)
@@ -173,8 +208,13 @@ public sealed class DelugeService : DownloadServiceBase
         );
     }
     
-    private static void ProcessFiles(Dictionary<string, DelugeFileOrDirectory> contents, Action<string, DelugeFileOrDirectory> processFile)
+    private static void ProcessFiles(Dictionary<string, DelugeFileOrDirectory>? contents, Action<string, DelugeFileOrDirectory> processFile)
     {
+        if (contents is null)
+        {
+            return;
+        }
+        
         foreach (var (name, data) in contents)
         {
             switch (data.Type)

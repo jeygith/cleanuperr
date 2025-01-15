@@ -1,4 +1,7 @@
-﻿using Common.Configuration.DownloadClient;
+using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
+using Common.Configuration.ContentBlocker;
+using Common.Configuration.DownloadClient;
 using Common.Configuration.QueueCleaner;
 using Common.Helpers;
 using Infrastructure.Verticals.ContentBlocker;
@@ -41,6 +44,7 @@ public sealed class TransmissionService : DownloadServiceBase
         await _client.GetSessionInformationAsync();
     }
 
+    /// <inheritdoc/>
     public override async Task<RemoveResult> ShouldRemoveFromArrQueueAsync(string hash)
     {
         RemoveResult result = new();
@@ -76,23 +80,31 @@ public sealed class TransmissionService : DownloadServiceBase
         return result;
     }
 
-    public override async Task BlockUnwantedFilesAsync(string hash)
+    /// <inheritdoc/>
+    public override async Task<bool> BlockUnwantedFilesAsync(
+        string hash,
+        BlocklistType blocklistType,
+        ConcurrentBag<string> patterns,
+        ConcurrentBag<Regex> regexes
+    )
     {
         TorrentInfo? torrent = await GetTorrentAsync(hash);
 
         if (torrent?.FileStats is null || torrent.Files is null)
         {
-            return;
+            return false;
         }
         
         if (_queueCleanerConfig.StalledIgnorePrivate && (torrent.IsPrivate ?? false))
         {
             // ignore private trackers
             _logger.LogDebug("skip files check | download is private | {name}", torrent.Name);
-            return;
+            return false;
         }
 
         List<long> unwantedFiles = [];
+        long totalFiles = 0;
+        long totalUnwantedFiles = 0;
         
         for (int i = 0; i < torrent.Files.Length; i++)
         {
@@ -100,19 +112,34 @@ public sealed class TransmissionService : DownloadServiceBase
             {
                 continue;
             }
+
+            totalFiles++;
             
-            if (!torrent.FileStats[i].Wanted.Value || _filenameEvaluator.IsValid(torrent.Files[i].Name))
+            if (!torrent.FileStats[i].Wanted.Value)
+            {
+                totalUnwantedFiles++;
+                continue;
+            }
+
+            if (_filenameEvaluator.IsValid(torrent.Files[i].Name, blocklistType, patterns, regexes))
             {
                 continue;
             }
             
             _logger.LogInformation("unwanted file found | {file}", torrent.Files[i].Name);
             unwantedFiles.Add(i);
+            totalUnwantedFiles++;
         }
 
         if (unwantedFiles.Count is 0)
         {
-            return;
+            return false;
+        }
+
+        if (totalUnwantedFiles == totalFiles)
+        {
+            // Skip marking files as unwanted. The download will be removed completely.
+            return true;
         }
         
         _logger.LogDebug("changing priorities | torrent {hash}", hash);
@@ -122,6 +149,20 @@ public sealed class TransmissionService : DownloadServiceBase
             Ids = [ torrent.Id ],
             FilesUnwanted = unwantedFiles.ToArray(),
         });
+
+        return false;
+    }
+
+    public override async Task Delete(string hash)
+    {
+        TorrentInfo? torrent = await GetTorrentAsync(hash);
+
+        if (torrent is null)
+        {
+            return;
+        }
+
+        await _client.TorrentRemoveAsync([torrent.Id], true);
     }
 
     public override void Dispose()

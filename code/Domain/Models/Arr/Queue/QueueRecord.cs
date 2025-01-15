@@ -2,10 +2,20 @@ namespace Domain.Models.Arr.Queue;
 
 public sealed record QueueRecord
 {
-    public int SeriesId { get; init; }
-    public int EpisodeId { get; init; }
-    public int SeasonNumber { get; init; }
-    public int MovieId { get; init; }
+    // Sonarr
+    public long SeriesId { get; init; }
+    public long EpisodeId { get; init; }
+    public long SeasonNumber { get; init; }
+    
+    // Radarr
+    public long MovieId { get; init; }
+    
+    // Lidarr
+    public long ArtistId { get; init; }
+    
+    public long AlbumId { get; init; }
+    
+    // common
     public required string Title { get; init; }
     public string Status { get; init; }
     public string TrackedDownloadStatus { get; init; }
@@ -13,5 +23,5 @@ public sealed record QueueRecord
     public List<TrackedDownloadStatusMessage>? StatusMessages { get; init; }
     public required string DownloadId { get; init; }
     public required string Protocol { get; init; }
-    public required int Id { get; init; }
+    public required long Id { get; init; }
 }

@@ -6,7 +6,6 @@ using Domain.Models.Arr;
 using Domain.Models.Arr.Queue;
 using Domain.Models.Sonarr;
 using Infrastructure.Verticals.ItemStriker;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -29,8 +28,13 @@ public sealed class SonarrClient : ArrClient
     {
         return $"/api/v3/queue?page={page}&pageSize=200&includeUnknownSeriesItems=true&includeSeries=true";
     }
+    
+    protected override string GetQueueDeleteUrlPath(long recordId)
+    {
+        return $"/api/v3/queue/{recordId}?removeFromClient=true&blocklist=true&skipRedownload=true&changeCategory=false";
+    }
 
-    public override async Task RefreshItemsAsync(ArrInstance arrInstance, ArrConfig config, HashSet<SearchItem>? items)
+    public override async Task RefreshItemsAsync(ArrInstance arrInstance, HashSet<SearchItem>? items)
     {
         if (items?.Count is null or 0)
         {
@@ -70,7 +74,7 @@ public sealed class SonarrClient : ArrClient
     {
         if (record.EpisodeId is 0 || record.SeriesId is 0)
         {
-            _logger.LogDebug("skip | item information missing | {title}", record.Title);
+            _logger.LogDebug("skip | episode id and/or series id missing | {title}", record.Title);
             return false;
         }
 

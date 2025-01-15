@@ -8,6 +8,7 @@ using Infrastructure.Verticals.DownloadClient;
 using Infrastructure.Verticals.Jobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog.Context;
 
 namespace Infrastructure.Verticals.QueueCleaner;
 
@@ -18,19 +19,27 @@ public sealed class QueueCleaner : GenericHandler
         IOptions<DownloadClientConfig> downloadClientConfig,
         IOptions<SonarrConfig> sonarrConfig,
         IOptions<RadarrConfig> radarrConfig,
+        IOptions<LidarrConfig> lidarrConfig,
         SonarrClient sonarrClient,
         RadarrClient radarrClient,
+        LidarrClient lidarrClient,
         ArrQueueIterator arrArrQueueIterator,
         DownloadServiceFactory downloadServiceFactory
-    ) : base(logger, downloadClientConfig, sonarrConfig.Value, radarrConfig.Value, sonarrClient, radarrClient, arrArrQueueIterator, downloadServiceFactory)
+    ) : base(
+        logger, downloadClientConfig,
+        sonarrConfig, radarrConfig, lidarrConfig,
+        sonarrClient, radarrClient, lidarrClient,
+        arrArrQueueIterator, downloadServiceFactory
+    )
     {
     }
     
     protected override async Task ProcessInstanceAsync(ArrInstance instance, InstanceType instanceType)
     {
+        using var _ = LogContext.PushProperty("InstanceName", instanceType.ToString());
+        
         HashSet<SearchItem> itemsToBeRefreshed = [];
         ArrClient arrClient = GetClient(instanceType);
-        ArrConfig arrConfig = GetConfig(instanceType);
 
         await _arrArrQueueIterator.Iterate(arrClient, instance, async items =>
         {
@@ -73,11 +82,10 @@ public sealed class QueueCleaner : GenericHandler
                 }
                 
                 itemsToBeRefreshed.Add(GetRecordSearchItem(instanceType, record, group.Count() > 1));
-
                 await arrClient.DeleteQueueItemAsync(instance, record);
             }
         });
         
-        await arrClient.RefreshItemsAsync(instance, arrConfig, itemsToBeRefreshed);
+        await arrClient.RefreshItemsAsync(instance, itemsToBeRefreshed);
     }
 }
