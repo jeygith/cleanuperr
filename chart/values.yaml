@@ -11,7 +11,7 @@ deployment:
         tag: latest
       env:
         - name: LOGGING__LOGLEVEL
-          value: Information
+          value: Debug
         - name: LOGGING__FILE__ENABLED
           value: "true"
         - name: LOGGING__FILE__PATH
@@ -22,34 +22,55 @@ deployment:
           value: 0 0/5 * * * ?
         - name: TRIGGERS__CONTENTBLOCKER
           value: 0 0/5 * * * ?
+
         - name: QUEUECLEANER__ENABLED
           value: "true"
         - name: QUEUECLEANER__RUNSEQUENTIALLY
           value: "true"
         - name: QUEUECLEANER__IMPORT_FAILED_MAX_STRIKES
           value: "3"
+        - name: QUEUECLEANER__IMPORT_FAILED_IGNORE_PRIVATE
+          value: "false"
+        - name: QUEUECLEANER__IMPORT_FAILED_DELETE_PRIVATE
+          value: "false"
         - name: QUEUECLEANER__STALLED_MAX_STRIKES
           value: "3"
+        - name: QUEUECLEANER__STALLED_IGNORE_PRIVATE
+          value: "false"
+        - name: QUEUECLEANER__STALLED_DELETE_PRIVATE
+          value: "false"
+
         - name: CONTENTBLOCKER__ENABLED
           value: "true"
-        - name: CONTENTBLOCKER__BLACKLIST__ENABLED
+        - name: CONTENTBLOCKER__IGNORE_PRIVATE
           value: "true"
-        - name: CONTENTBLOCKER__BLACKLIST__PATH
-          value: https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist
+        - name: CONTENTBLOCKER__DELETE_PRIVATE
+          value: "false"
+
         - name: DOWNLOAD_CLIENT
           value: qbittorrent
         - name: QBITTORRENT__URL
           value: http://service.qbittorrent-videos.svc.cluster.local
+
         - name: SONARR__ENABLED
           value: "true"
         - name: SONARR__SEARCHTYPE
           value: Episode
+        - name: SONARR__BLOCK__TYPE
+          value: blacklist
+        - name: SONARR__BLOCK__PATH
+          value: https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist
         - name: SONARR__INSTANCES__0__URL
           value: http://service.sonarr-low-res.svc.cluster.local
         - name: SONARR__INSTANCES__1__URL
           value: http://service.sonarr-high-res.svc.cluster.local
+
         - name: RADARR__ENABLED
           value: "true"
+        - name: RADARR__BLOCK__TYPE
+          value: blacklist
+        - name: RADARR__BLOCK__PATH
+          value: https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist
         - name: RADARR__INSTANCES__0__URL
           value: http://service.radarr-low-res.svc.cluster.local
         - name: RADARR__INSTANCES__1__URL
