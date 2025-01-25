@@ -1,3 +1,5 @@
+_Love this project? Give it a ⭐️ and let others know!_
+
 # <img width="24px" src="./Logo/256.png" alt="cleanuperr"></img> cleanuperr
 
 cleanuperr is a tool for automating the cleanup of unwanted or blocked files in Sonarr, Radarr, and supported download clients like qBittorrent. It removes incomplete or blocked downloads, updates queues, and enforces blacklists or whitelists to manage file selection. After removing blocked content, cleanuperr can also trigger a search to replace the deleted shows/movies.
@@ -185,7 +187,7 @@ services:
 | QUEUECLEANER__IMPORT_FAILED_DELETE_PRIVATE | No | - Whether to delete failed imports of private downloads from the download client.<br>- Does not have any effect if `QUEUECLEANER__IMPORT_FAILED_IGNORE_PRIVATE` is `true`.<br>- **Set this to `true` if you don't care about seeding, ratio, H&R and potentially losing your tracker account.** | false |
 | QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__0 | No | - First pattern to look for when an import is failed.<br>- If the specified message pattern is found, the item is skipped. | empty |
 | QUEUECLEANER__STALLED_MAX_STRIKES | No | - After how many strikes should a stalled download be removed.<br>- 0 means never. | 0 |
-| QUEUECLEANER__STALLED_RESET_STRIKES_ON_PROGRESS | No | Removes strikes if any download progress was made since last checked. | false |
+| QUEUECLEANER__STALLED_RESET_STRIKES_ON_PROGRESS | No | Whether to remove strikes if any download progress was made since last checked. | false |
 | QUEUECLEANER__STALLED_IGNORE_PRIVATE | No | Whether to ignore stalled downloads from private trackers. | false |
 | QUEUECLEANER__STALLED_DELETE_PRIVATE | No | - Whether to delete stalled private downloads from the download client.<br>- Does not have any effect if `QUEUECLEANER__STALLED_IGNORE_PRIVATE` is `true`.<br>- **Set this to `true` if you don't care about seeding, ratio, H&R and potentially losing your tracker account.** | false |
 |||||
