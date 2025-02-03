@@ -7,6 +7,19 @@ body:
     attributes:
       value: |
         If you are experiencing unexpected behavior, please consider submitting a bug report instead.
+  - type: checkboxes
+    id: init
+    attributes:
+      label: "Before submitting a help request, I have:"
+      options:
+        - label: Reviewed the documentation.
+          required: true
+        - label: Ensured I am using ghcr.io/flmorg/cleanuperr docker repository.
+          required: true
+        - label: Ensured I am using the latest version.
+          required: true
+        - label: Enabled debug logging.
+          required: true
   - type: textarea
     id: description
     attributes:

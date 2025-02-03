@@ -14,21 +14,17 @@ body:
       options:
         - label: Reviewed the documentation.
           required: true
+        - label: Ensured I am using ghcr.io/flmorg/cleanuperr docker repository.
+          required: true
         - label: Ensured I am using the latest version.
+          required: true
+        - label: Enabled debug logging.
           required: true
   - type: textarea
     id: what-happened
     attributes:
       label: What is the behavior?
       description: If applicable, mention what you expected to happen.
-    validations:
-      required: true
-  - type: input
-    id: version
-    attributes:
-      label: Version
-      description: What version of our software are you running?
-      placeholder: e.g. 1.3.0 or latest
     validations:
       required: true
   - type: dropdown
