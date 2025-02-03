@@ -2,28 +2,44 @@ _Love this project? Give it a ⭐️ and let others know!_
 
 # <img width="24px" src="./Logo/256.png" alt="cleanuperr"></img> cleanuperr
 
+[![Discord](https://img.shields.io/discord/1306721212587573389?color=7289DA&label=Discord&style=for-the-badge&logo=discord)](https://discord.gg/sWggpnmGNY)
+
 cleanuperr is a tool for automating the cleanup of unwanted or blocked files in Sonarr, Radarr, and supported download clients like qBittorrent. It removes incomplete or blocked downloads, updates queues, and enforces blacklists or whitelists to manage file selection. After removing blocked content, cleanuperr can also trigger a search to replace the deleted shows/movies.
 
 cleanuperr was created primarily to address malicious files, such as `*.lnk` or `*.zipx`, that were getting stuck in Sonarr/Radarr and required manual intervention. Some of the reddit posts that made cleanuperr come to life can be found [here](https://www.reddit.com/r/sonarr/comments/1gqnx16/psa_sonarr_downloaded_a_virus/), [here](https://www.reddit.com/r/sonarr/comments/1gqwklr/sonar_downloaded_a_mkv_file_which_looked_like_a/), [here](https://www.reddit.com/r/sonarr/comments/1gpw2wa/downloaded_waiting_to_import/) and [here](https://www.reddit.com/r/sonarr/comments/1gpi344/downloads_not_importing_no_files_found/).
 
 The tool supports both qBittorrent's built-in exclusion features and its own blocklist-based system. Binaries for all platforms are provided, along with Docker images for easy deployment.
 
-Refer to the [Environment variables](#Environment-variables) section for detailed configuration instructions and the [Setup](#Setup) section for an in-depth explanation of the cleanup process.
+#
+
+> [!NOTE]
+> ### Quick Start
+>
+> 1. **Docker (Recommended)**  
+> Pull the Docker image from `ghcr.io/flmorg/cleanuperr:latest`.
+>
+> 2. **Unraid (for Unraid users)**  
+> Use the Unraid Community App.
+>
+> 3. **Manual Installation (if you're not using Docker)**  
+> More details [here](#binaries-if-youre-not-using-docker).
+
+> [!TIP]
+> Refer to the [Environment variables](#Environment-variables) section for detailed configuration instructions and the [Setup](#Setup) section for an in-depth explanation of the cleanup process.
 
 ## Key features
 - Marks unwanted files as skip/unwanted in the download client.
 - Automatically strikes stalled or stuck downloads. 
 - Removes and blocks downloads that reached the maximum number of strikes or are marked as unwanted by the download client or by cleanuperr and triggers a search for removed downloads.
 
-## Important note
-
-Only the **latest versions** of the following apps are supported, or earlier versions that have the same API as the latest version:
-- qBittorrent
-- Deluge
-- Transmission
-- Sonarr
-- Radarr
-- Lidarr
+> [!IMPORTANT]
+> Only the **latest versions** of the following apps are supported, or earlier versions that have the same API as the latest version:
+> - qBittorrent
+> - Deluge
+> - Transmission
+> - Sonarr
+> - Radarr
+> - Lidarr
 
 This tool is actively developed and still a work in progress, so using the `latest` Docker tag may result in breaking changes. Join the Discord server if you want to reach out to me quickly (or just stay updated on new releases) so we can squash those pesky bugs together:
 
@@ -93,6 +109,8 @@ This tool is actively developed and still a work in progress, so using the `late
 version: "3.3"
 services:
   cleanuperr:
+    image: ghcr.io/flmorg/cleanuperr:latest
+    restart: unless-stopped
     volumes:
       - ./cleanuperr/logs:/var/logs
     environment:
@@ -160,8 +178,6 @@ services:
       - LIDARR__INSTANCES__0__APIKEY=secret5
       - LIDARR__INSTANCES__1__URL=http://radarr:8687
       - LIDARR__INSTANCES__1__APIKEY=secret6
-    image: ghcr.io/flmorg/cleanuperr:latest
-    restart: unless-stopped
 ```
 
 ## Environment variables
@@ -253,28 +269,28 @@ services:
 
 #
 
-### To be noted
+> [!NOTE]
+> 1. The queue cleaner and content blocker can be enabled or disabled separately, if you want to run only one of them.
+> 2. Only one download client can be enabled at a time. If you have more than one download client, you should deploy multiple instances of cleanuperr.
+> 3. The blocklists (blacklist/whitelist) should have a single pattern on each line and supports the following:
+> ```
+> *example            // file name ends with "example"
+> example*            // file name starts with "example"
+> *example*           // file name has "example" in the name
+> example             // file name is exactly the word "example"
+> regex:<ANY_REGEX>   // regex that needs to be marked at the start of the line with "regex:"
+> ```
+> 4. Multiple Sonarr/Radarr/Lidarr instances can be specified using this format, where `<NUMBER>` starts from `0`:
+> ```
+> SONARR__INSTANCES__<NUMBER>__URL
+> SONARR__INSTANCES__<NUMBER>__APIKEY
+> ```
+> 5. Multiple failed import patterns can be specified using this format, where `<NUMBER>` starts from 0:
+> ```
+> QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__<NUMBER>
+> ```
+> 6. [This blacklist](https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist) and [this whitelist](https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/whitelist) can be used for Sonarr and Radarr, but they are not suitable for other *arrs.
 
-1. The queue cleaner and content blocker can be enabled or disabled separately, if you want to run only one of them.
-2. Only one download client can be enabled at a time. If you have more than one download client, you should deploy multiple instances of cleanuperr.
-3. The blocklists (blacklist/whitelist) should have a single pattern on each line and supports the following:
-```
-*example            // file name ends with "example"
-example*            // file name starts with "example"
-*example*           // file name has "example" in the name
-example             // file name is exactly the word "example"
-regex:<ANY_REGEX>   // regex that needs to be marked at the start of the line with "regex:"
-```
-4. Multiple Sonarr/Radarr/Lidarr instances can be specified using this format, where `<NUMBER>` starts from `0`:
-```
-SONARR__INSTANCES__<NUMBER>__URL
-SONARR__INSTANCES__<NUMBER>__APIKEY
-```
-5. Multiple failed import patterns can be specified using this format, where `<NUMBER>` starts from 0:
-```
-QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__<NUMBER>
-```
-6. [This blacklist](https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/blacklist) and [this whitelist](https://raw.githubusercontent.com/flmorg/cleanuperr/refs/heads/main/whitelist) can be used for Sonarr and Radarr, but they are not suitable for other *arrs.
 #
 
 ### Binaries (if you're not using Docker)
@@ -283,9 +299,9 @@ QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__<NUMBER>
 2. Extract them from the zip file.
 3. Edit **appsettings.json**. The paths from this json file correspond with the docker env vars, as described [above](#environment-variables).
 
-### Run as a Windows Service
-
-Check out this stackoverflow answer on how to do it: https://stackoverflow.com/a/15719678
+> [!TIP]
+> ### Run as a Windows Service
+> Check out this stackoverflow answer on how to do it: https://stackoverflow.com/a/15719678
 
 # Credits
 Special thanks for inspiration go to:
