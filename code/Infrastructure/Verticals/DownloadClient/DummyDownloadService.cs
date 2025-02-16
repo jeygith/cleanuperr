@@ -12,8 +12,13 @@ using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Verticals.DownloadClient;
 
-public sealed class DummyDownloadService : DownloadService
+public class DummyDownloadService : DownloadService
 {
+    /// <inheritdoc/>
+    public DummyDownloadService()
+    {
+    }
+    
     public DummyDownloadService(ILogger<DownloadService> logger, IOptions<QueueCleanerConfig> queueCleanerConfig, IOptions<ContentBlockerConfig> contentBlockerConfig, IOptions<DownloadCleanerConfig> downloadCleanerConfig, IMemoryCache cache, IFilenameEvaluator filenameEvaluator, IStriker striker, NotificationPublisher notifier) : base(logger, queueCleanerConfig, contentBlockerConfig, downloadCleanerConfig, cache, filenameEvaluator, striker, notifier)
     {
     }
