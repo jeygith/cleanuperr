@@ -10,6 +10,9 @@ deployment:
         repository: ghcr.io/flmorg/cleanuperr
         tag: latest
       env:
+        - name: DRY_RUN
+          value: "false"
+
         - name: LOGGING__LOGLEVEL
           value: Debug
         - name: LOGGING__FILE__ENABLED
@@ -18,6 +21,7 @@ deployment:
           value: /var/logs
         - name: LOGGING__ENHANCED
           value: "true"
+
         - name: TRIGGERS__QUEUECLEANER
           value: 0 0/5 * * * ?
         - name: TRIGGERS__CONTENTBLOCKER
@@ -45,6 +49,9 @@ deployment:
         - name: CONTENTBLOCKER__IGNORE_PRIVATE
           value: "true"
         - name: CONTENTBLOCKER__DELETE_PRIVATE
+          value: "false"
+
+        - name: DOWNLOADCLEANER__ENABLED
           value: "false"
 
         - name: DOWNLOAD_CLIENT
@@ -75,6 +82,17 @@ deployment:
           value: http://service.radarr-low-res.svc.cluster.local
         - name: RADARR__INSTANCES__1__URL
           value: http://service.radarr-high-res.svc.cluster.local
+
+        - name: NOTIFIARR__ON_IMPORT_FAILED_STRIKE
+          value: "true"
+        - name: NOTIFIARR__ON_STALLED_STRIKE
+          value: "true"
+        - name: NOTIFIARR__ON_QUEUE_ITEM_DELETED
+          value: "true"
+        - name: NOTIFIARR__ON_DOWNLOAD_CLEANED
+          value: "true"
+        - name: NOTIFIARR__CHANNEL_ID
+          value: "1340708411259748413"
       envFromSecret:
         - secretName: qbit-auth
           envs:
@@ -94,6 +112,10 @@ deployment:
               key: RDRL_API_KEY
             - name: RADARR__INSTANCES__1__APIKEY
               key: RDRH_API_KEY
+        - secretName: notifiarr-auth
+          envs:
+            - name: NOTIFIARR__API_KEY
+              key: API_KEY
       resources:
         requests:
           cpu: 0m
@@ -134,3 +156,7 @@ vaultSecrets:
     templates:
       SNRL_API_KEY: "{% .Secrets.low_api_key %}"
       SNRH_API_KEY: "{% .Secrets.high_api_key %}"
+  - name: notifiarr-auth
+    path: secrets/notifiarr
+    templates:
+      API_KEY: "{% .Secrets.passthrough_api_key %}"
