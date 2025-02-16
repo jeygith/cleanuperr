@@ -245,6 +245,12 @@ public class QBitService : DownloadService, IQBitService
             {
                 TorrentProperties? torrentProperties = await _client.GetTorrentPropertiesAsync(download.Hash);
 
+                if (torrentProperties is null)
+                {
+                    _logger.LogDebug("failed to find torrent properties in the download client | {name}", download.Name);
+                    return;
+                }
+                
                 bool isPrivate = torrentProperties.AdditionalData.TryGetValue("is_private", out var dictValue) &&
                                  bool.TryParse(dictValue?.ToString(), out bool boolValue)
                                  && boolValue;
