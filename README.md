@@ -8,12 +8,35 @@ cleanuperr is a tool for automating the cleanup of unwanted or blocked files in 
 
 cleanuperr was created primarily to address malicious files, such as `*.lnk` or `*.zipx`, that were getting stuck in Sonarr/Radarr and required manual intervention. Some of the reddit posts that made cleanuperr come to life can be found [here](https://www.reddit.com/r/sonarr/comments/1gqnx16/psa_sonarr_downloaded_a_virus/), [here](https://www.reddit.com/r/sonarr/comments/1gqwklr/sonar_downloaded_a_mkv_file_which_looked_like_a/), [here](https://www.reddit.com/r/sonarr/comments/1gpw2wa/downloaded_waiting_to_import/) and [here](https://www.reddit.com/r/sonarr/comments/1gpi344/downloads_not_importing_no_files_found/).
 
-The tool supports both qBittorrent's built-in exclusion features and its own blocklist-based system. Binaries for all platforms are provided, along with Docker images for easy deployment.
+> [!IMPORTANT]
+> **Features:**
+> - Strike system to mark stalled or downloads stuck in metadata downloading.
+> - Remove and block downloads that reached a maximum number of strikes.
+> - Remove downloads blocked by qBittorrent or by cleanuperr's **content blocker**.
+> - Trigger a search for downloads removed from the *arrs.
+> - Clean up downloads that have been seeding for a certain amount of time.
+> - Notify on strike or download removal.
 
-#
+cleanuperr supports both qBittorrent's built-in exclusion features and its own blocklist-based system. Binaries for all platforms are provided, along with Docker images for easy deployment.
+
+> [!WARNING]
+> This tool is actively developed and still a work in progress, so using the `latest` Docker tag may result in breaking changes. Join the Discord server if you want to reach out to me quickly (or just stay updated on new releases) so we can squash those pesky bugs together:
+>
+> https://discord.gg/sWggpnmGNY
+
+## Table of contents:
+- [Quick Start](README.md#quick-start)
+- [How it works](README.md#how-it-works)
+- [Setup](README.md#setup)
+- [Usage](README.md#usage)
+  - [Docker Compose](README.md#docker-compose-yaml)
+  - [Environment Variables](README.md#environment-variables)
+  - [Binaries](README.md#binaries-if-youre-not-using-docker)
+- [Credits](README.md#credits)
+
+## Quick Start
 
 > [!NOTE]
-> ### Quick Start
 >
 > 1. **Docker (Recommended)**  
 > Pull the Docker image from `ghcr.io/flmorg/cleanuperr:latest`.
@@ -27,10 +50,6 @@ The tool supports both qBittorrent's built-in exclusion features and its own blo
 > [!TIP]
 > Refer to the [Environment variables](#Environment-variables) section for detailed configuration instructions and the [Setup](#Setup) section for an in-depth explanation of the cleanup process.
 
-## Key features
-- Marks unwanted files as skip/unwanted in the download client.
-- Automatically strikes stalled or stuck downloads. 
-- Removes and blocks downloads that reached the maximum number of strikes or are marked as unwanted by the download client or by cleanuperr and triggers a search for removed downloads.
 
 > [!IMPORTANT]
 > Only the **latest versions** of the following apps are supported, or earlier versions that have the same API as the latest version:
@@ -40,10 +59,6 @@ The tool supports both qBittorrent's built-in exclusion features and its own blo
 > - Sonarr
 > - Radarr
 > - Lidarr
-
-This tool is actively developed and still a work in progress, so using the `latest` Docker tag may result in breaking changes. Join the Discord server if you want to reach out to me quickly (or just stay updated on new releases) so we can squash those pesky bugs together:
-
-> https://discord.gg/sWggpnmGNY
 
 # How it works
 
@@ -102,7 +117,8 @@ This tool is actively developed and still a work in progress, so using the `late
 3. Optionally set failed import message patterns to ignore using `QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__<NUMBER>`.
 4. Set `DOWNLOAD_CLIENT` to `none`.
 
-**No other action involving a download client would work (e.g. content blocking, removing stalled downloads, excluding private trackers).**
+> [!WARNING]
+> When `DOWNLOAD_CLIENT=none`, no other action involving a download client would work (e.g. content blocking, removing stalled downloads, excluding private trackers).
 
 ## Usage
 
