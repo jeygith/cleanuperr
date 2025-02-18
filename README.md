@@ -25,6 +25,7 @@ cleanuperr supports both qBittorrent's built-in exclusion features and its own b
 > https://discord.gg/sWggpnmGNY
 
 ## Table of contents:
+- [Naming choice](README.md#naming-choice)
 - [Quick Start](README.md#quick-start)
 - [How it works](README.md#how-it-works)
 - [Setup](README.md#setup)
@@ -33,6 +34,12 @@ cleanuperr supports both qBittorrent's built-in exclusion features and its own b
   - [Environment Variables](README.md#environment-variables)
   - [Binaries](README.md#binaries-if-youre-not-using-docker)
 - [Credits](README.md#credits)
+
+## Naming choice
+
+I've had people asking why it's `cleanuperr` and not `cleanuparr` and that I should change it. This name was intentional.
+
+I've seen a few discussions on this type of naming and I've decided that I didn't deserve the `arr` moniker since `cleanuperr` is not a fork of `NZB.Drone` and it does not have any affiliation with the arrs. I still wanted to keep the naming style close enough though, to suggest a correlation between them. 
 
 ## Quick Start
 
