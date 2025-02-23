@@ -7,6 +7,7 @@ using Common.Configuration.DownloadClient;
 using Common.Configuration.QueueCleaner;
 using Common.Helpers;
 using Domain.Enums;
+using Infrastructure.Interceptors;
 using Infrastructure.Verticals.ContentBlocker;
 using Infrastructure.Verticals.Context;
 using Infrastructure.Verticals.ItemStriker;
@@ -26,11 +27,6 @@ public class TransmissionService : DownloadService, ITransmissionService
     private readonly Client _client;
     private TorrentInfo[]? _torrentsCache;
 
-    /// <inheritdoc/>
-    public TransmissionService()
-    {
-    }
-    
     public TransmissionService(
         IHttpClientFactory httpClientFactory,
         ILogger<TransmissionService> logger,
@@ -41,8 +37,12 @@ public class TransmissionService : DownloadService, ITransmissionService
         IMemoryCache cache,
         IFilenameEvaluator filenameEvaluator,
         IStriker striker,
-        NotificationPublisher notifier
-    ) : base(logger, queueCleanerConfig, contentBlockerConfig, downloadCleanerConfig, cache, filenameEvaluator, striker, notifier)
+        INotificationPublisher notifier,
+        IDryRunInterceptor dryRunInterceptor
+    ) : base(
+        logger, queueCleanerConfig, contentBlockerConfig, downloadCleanerConfig, cache,
+        filenameEvaluator, striker, notifier, dryRunInterceptor
+    )
     {
         _config = config.Value;
         _config.Validate();
@@ -174,8 +174,8 @@ public class TransmissionService : DownloadService, ITransmissionService
         }
         
         _logger.LogDebug("changing priorities | torrent {hash}", hash);
-        
-        await ((TransmissionService)Proxy).SetUnwantedFiles(torrent.Id, unwantedFiles.ToArray());
+
+        await _dryRunInterceptor.InterceptAsync(SetUnwantedFiles, torrent.Id, unwantedFiles.ToArray());
 
         return result;
     }
@@ -268,7 +268,7 @@ public class TransmissionService : DownloadService, ITransmissionService
                 continue;
             }
 
-            await ((TransmissionService)Proxy).RemoveDownloadAsync(download.Id);
+            await _dryRunInterceptor.InterceptAsync(RemoveDownloadAsync, download.Id);
 
             _logger.LogInformation(
                 "download cleaned | {reason} reached | {name}",
