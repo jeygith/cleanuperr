@@ -112,7 +112,7 @@ I've seen a few discussions on this type of naming and I've decided that I didn'
 ## Using cleanuperr's blocklist (works with all supported download clients)
 
 1. Set both `QUEUECLEANER__ENABLED` and `CONTENTBLOCKER__ENABLED` to `true` in your environment variables.
-2. Configure and enable either a **blacklist** or a **whitelist** as described in the [Arr variables](#Arr-variables) section.
+2. Configure and enable either a **blacklist** or a **whitelist** as described in the [Arr variables](variables.md#Arr-settings) section.
 3. Once configured, cleanuperr will perform the following tasks:
    - Execute the **content blocker** job, as explained in the [How it works](#how-it-works) section.
    - Execute the **queue cleaner** job, as explained in the [How it works](#how-it-works) section.
