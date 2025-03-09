@@ -7,6 +7,7 @@ using Common.Configuration.DownloadClient;
 using Common.Configuration.QueueCleaner;
 using Common.Helpers;
 using Domain.Enums;
+using Infrastructure.Extensions;
 using Infrastructure.Interceptors;
 using Infrastructure.Verticals.ContentBlocker;
 using Infrastructure.Verticals.Context;
@@ -58,15 +59,24 @@ public class QBitService : DownloadService, IQBitService
     }
 
     /// <inheritdoc/>
-    public override async Task<StalledResult> ShouldRemoveFromArrQueueAsync(string hash)
+    public override async Task<StalledResult> ShouldRemoveFromArrQueueAsync(string hash, IReadOnlyList<string> ignoredDownloads)
     {
         StalledResult result = new();
-        TorrentInfo? torrent = (await _client.GetTorrentListAsync(new TorrentListQuery { Hashes = [hash] }))
+        TorrentInfo? download = (await _client.GetTorrentListAsync(new TorrentListQuery { Hashes = [hash] }))
             .FirstOrDefault();
 
-        if (torrent is null)
+        if (download is null)
         {
             _logger.LogDebug("failed to find torrent {hash} in the download client", hash);
+            return result;
+        }
+
+        IReadOnlyList<TorrentTracker> trackers = await GetTrackersAsync(hash);
+        
+        if (ignoredDownloads.Count > 0 &&
+            (download.ShouldIgnore(ignoredDownloads) || trackers.Any(x => x.ShouldIgnore(ignoredDownloads)) is true))
+        {
+            _logger.LogInformation("skip | download is ignored | {name}", download.Name);
             return result;
         }
 
@@ -83,7 +93,7 @@ public class QBitService : DownloadService, IQBitService
                            && boolValue;
 
         // if all files were blocked by qBittorrent
-        if (torrent is { CompletionOn: not null, Downloaded: null or 0 })
+        if (download is { CompletionOn: not null, Downloaded: null or 0 })
         {
             result.ShouldRemove = true;
             result.DeleteReason = DeleteReason.AllFilesBlocked;
@@ -100,7 +110,7 @@ public class QBitService : DownloadService, IQBitService
             return result;
         }
 
-        result.ShouldRemove = await IsItemStuckAndShouldRemove(torrent, result.IsPrivate);
+        result.ShouldRemove = await IsItemStuckAndShouldRemove(download, result.IsPrivate);
 
         if (result.ShouldRemove)
         {
@@ -111,20 +121,29 @@ public class QBitService : DownloadService, IQBitService
     }
 
     /// <inheritdoc/>
-    public override async Task<BlockFilesResult> BlockUnwantedFilesAsync(
-        string hash,
+    public override async Task<BlockFilesResult> BlockUnwantedFilesAsync(string hash,
         BlocklistType blocklistType,
         ConcurrentBag<string> patterns,
-        ConcurrentBag<Regex> regexes
+        ConcurrentBag<Regex> regexes,
+        IReadOnlyList<string> ignoredDownloads
     )
     {
-        TorrentInfo? torrent = (await _client.GetTorrentListAsync(new TorrentListQuery { Hashes = [hash] }))
+        TorrentInfo? download = (await _client.GetTorrentListAsync(new TorrentListQuery { Hashes = [hash] }))
             .FirstOrDefault();
         BlockFilesResult result = new();
 
-        if (torrent is null)
+        if (download is null)
         {
             _logger.LogDebug("failed to find torrent {hash} in the download client", hash);
+            return result;
+        }
+        
+        IReadOnlyList<TorrentTracker> trackers = await GetTrackersAsync(hash);
+        
+        if (ignoredDownloads.Count > 0 &&
+            (download.ShouldIgnore(ignoredDownloads) || trackers.Any(x => x.ShouldIgnore(ignoredDownloads)) is true))
+        {
+            _logger.LogInformation("skip | download is ignored | {name}", download.Name);
             return result;
         }
         
@@ -145,7 +164,7 @@ public class QBitService : DownloadService, IQBitService
         if (_contentBlockerConfig.IgnorePrivate && isPrivate)
         {
             // ignore private trackers
-            _logger.LogDebug("skip files check | download is private | {name}", torrent.Name);
+            _logger.LogDebug("skip files check | download is private | {name}", download.Name);
             return result;
         }
         
@@ -218,12 +237,22 @@ public class QBitService : DownloadService, IQBitService
         .ToList();
 
     /// <inheritdoc/>
-    public override async Task CleanDownloads(List<object> downloads, List<Category> categoriesToClean, HashSet<string> excludedHashes)
+    public override async Task CleanDownloads(List<object> downloads, List<Category> categoriesToClean, HashSet<string> excludedHashes,
+        IReadOnlyList<string> ignoredDownloads)
     {
         foreach (TorrentInfo download in downloads)
         {
             if (string.IsNullOrEmpty(download.Hash))
             {
+                continue;
+            }
+            
+            IReadOnlyList<TorrentTracker> trackers = await GetTrackersAsync(download.Hash);
+
+            if (ignoredDownloads.Count > 0 &&
+                (download.ShouldIgnore(ignoredDownloads) || trackers.Any(x => x.ShouldIgnore(ignoredDownloads)) is true))
+            {
+                _logger.LogInformation("skip | download is ignored | {name}", download.Name);
                 continue;
             }
             
@@ -303,7 +332,7 @@ public class QBitService : DownloadService, IQBitService
     {
         _client.Dispose();
     }
-    
+
     private async Task<bool> IsItemStuckAndShouldRemove(TorrentInfo torrent, bool isPrivate)
     {
         if (_queueCleanerConfig.StalledMaxStrikes is 0)
@@ -328,5 +357,12 @@ public class QBitService : DownloadService, IQBitService
         ResetStrikesOnProgress(torrent.Hash, torrent.Downloaded ?? 0);
 
         return await StrikeAndCheckLimit(torrent.Hash, torrent.Name);
+    }
+
+    private async Task<IReadOnlyList<TorrentTracker>> GetTrackersAsync(string hash)
+    {
+        return (await _client.GetTorrentTrackersAsync(hash))
+            .Where(x => !x.Url.ToString().Contains("**"))
+            .ToList();
     }
 }
