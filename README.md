@@ -40,6 +40,7 @@ cleanuperr supports both qBittorrent's built-in exclusion features and its own b
   - [Windows](#windows)
   - [Linux](#linux)
   - [MacOS](#macos)
+  - [FreeBSD](#freebsd)
 - [Credits](#credits)
 
 ## Naming choice
@@ -299,6 +300,54 @@ services:
 > ```
 > codesign --sign - --force --preserve-metadata=entitlements,requirements,flags,runtime /example/directory/cleanuperr
 > ```
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/brands/freebsd.svg" height="20" style="vertical-align: middle;"> <span style="vertical-align: middle;">FreeBSD</span>
+
+1. Installation:
+    ```
+    # install dependencies
+    pkg install -y git icu libinotify libunwind wget
+
+    # set up the dotnet SDK
+    cd ~
+    wget -q https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v9.0.104-amd64-freebsd-14/dotnet-sdk-9.0.104-freebsd-x64.tar.gz
+    export DOTNET_ROOT=$(pwd)/.dotnet
+    mkdir -p "$DOTNET_ROOT" && tar zxf dotnet-sdk-9.0.104-freebsd-x64.tar.gz -C "$DOTNET_ROOT"
+    export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
+
+    # download NuGet dependencies
+    mkdir -p /tmp/nuget
+    wget -q -P /tmp/nuget/ https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v9.0.104-amd64-freebsd-14/Microsoft.AspNetCore.App.Runtime.freebsd-x64.9.0.3.nupkg
+    wget -q -P /tmp/nuget/ https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v9.0.104-amd64-freebsd-14/Microsoft.NETCore.App.Host.freebsd-x64.9.0.3.nupkg
+    wget -q -P /tmp/nuget/ https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v9.0.104-amd64-freebsd-14/Microsoft.NETCore.App.Runtime.freebsd-x64.9.0.3.nupkg
+
+    # add NuGet source
+    dotnet nuget add source /tmp/nuget --name tmp
+
+    # add GitHub NuGet source
+    # a PAT (Personal Access Token) can be generated here https://github.com/settings/tokens
+    dotnet nuget add source --username <YOUR_USERNAME> --password <YOUR_PERSONAL_ACCESS_TOKEN> --store-password-in-clear-text --name flmorg https://nuget.pkg.github.com/flmorg/index.json
+    ```
+2. Building:
+    ```
+    # clone the project
+    git clone https://github.com/flmorg/cleanuperr.git
+    cd cleanuperr
+
+    # build and publish the app
+    dotnet publish code/Executable/Executable.csproj -c Release --self-contained -o artifacts /p:PublishSingleFile=true
+
+    # move the files to permanent destination
+    mv artifacts/cleanuperr /example/directory/
+    mv artifacts/appsettings.json /example/directory/
+    ```
+3. Edit **appsettings.json**. The paths from this json file correspond with the docker env vars, as described [here](#environment-variables).
+4. Run the app:
+    ```
+    cd /example/directory
+    chmod +x cleanuperr
+    ./cleanuperr
+    ```
 
 # Credits
 Special thanks for inspiration go to:
