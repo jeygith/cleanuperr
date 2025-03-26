@@ -95,7 +95,7 @@ I've seen a few discussions on this type of naming and I've decided that I didn'
      - If it is, the item receives a **strike** and will continue to accumulate strikes every time it meets any of these conditions.
    - Check each queue item if it meets one of the following condition in the download client:
      - **Marked as completed, but 0 bytes have been downloaded** (due to files being blocked by qBittorrent or the **content blocker**).
-     - All associated files of are marked as **unwanted/skipped**.
+     - All associated files are marked as **unwanted/skipped/do not download**.
    - If the item **DOES NOT** match the above criteria, it will be skipped.
    - If the item **DOES** match the criteria or has received the **maximum number of strikes**:
      - It will be removed from the *arr's queue and blocked.
