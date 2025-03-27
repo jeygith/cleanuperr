@@ -271,7 +271,21 @@ services:
 
 > [!TIP]
 > ### Run as a Windows Service
-> Check out this stackoverflow answer on how to do it: https://stackoverflow.com/a/15719678
+> 1. Download latest nssm build from `https://nssm.cc/builds`.
+> 2. Unzip `nssm.exe` in `C:\example\directory`.
+> 3. Open a terminal with Administrator rights and execute these commands:
+> ```
+> nssm.exe install Cleanuperr "C:\example\directory\cleanuperr.exe"
+> nssm.exe set Cleanuperr AppDirectory "C:\example\directory\"
+> nssm.exe set Cleanuperr AppStdout "C:\example\directory\cleanuperr.log"
+> nssm.exe set Cleanuperr AppStderr "C:\example\directory\cleanuperr.crash.log"
+> nssm.exe set Cleanuperr AppRotateFiles 1
+> nssm.exe set Cleanuperr AppRotateOnline 1
+> nssm.exe set Cleanuperr AppRotateBytes 10485760
+> nssm.exe set Cleanuperr AppRotateFiles 10
+> nssm.exe set Cleanuperr Start SERVICE_AUTO_START
+> nssm.exe start Cleanuperr
+> ```
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/brands/linux.svg" height="20" style="vertical-align: middle;"> <span style="vertical-align: middle;">Linux</span>
 
