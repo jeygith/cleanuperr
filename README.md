@@ -313,7 +313,7 @@ services:
 
 > [!IMPORTANT]
 > Some people have experienced problems when trying to execute cleanuperr on MacOS because the system actively blocked the file for not being signed.
-> As per [this](), you may need to also execute this command:
+> As per [this comment](https://stackoverflow.com/a/77907937), you may need to also execute this command:
 > ```
 > codesign --sign - --force --preserve-metadata=entitlements,requirements,flags,runtime /example/directory/cleanuperr
 > ```
