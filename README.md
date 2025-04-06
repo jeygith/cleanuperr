@@ -12,6 +12,7 @@ cleanuperr was created primarily to address malicious files, such as `*.lnk` or 
 > **Features:**
 > - Strike system to mark stalled or downloads stuck in metadata downloading.
 > - Remove and block downloads that reached a maximum number of strikes.
+> - Remove and block downloads that have a low download speed or high estimated completion time.
 > - Remove downloads blocked by qBittorrent or by cleanuperr's **content blocker**.
 > - Trigger a search for downloads removed from the *arrs.
 > - Clean up downloads that have been seeding for a certain amount of time.
@@ -91,7 +92,7 @@ I've seen a few discussions on this type of naming and I've decided that I didn'
 #### 2. **Queue cleaner** will:
    - Run every 5 minutes (or configured cron, or right after `content blocker`).
    - Process all items in the *arr queue.
-   - Check each queue item if it is **stalled (download speed is 0)**, **stuck in metadata downloading** or **failed to be imported**.
+   - Check each queue item if it is **stalled (download speed is 0)**, **stuck in metadata downloading**, **failed to be imported** or **slow**.
      - If it is, the item receives a **strike** and will continue to accumulate strikes every time it meets any of these conditions.
    - Check each queue item if it meets one of the following condition in the download client:
      - **Marked as completed, but 0 bytes have been downloaded** (due to files being blocked by qBittorrent or the **content blocker**).
