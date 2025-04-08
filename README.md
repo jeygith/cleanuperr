@@ -169,39 +169,62 @@ services:
       - ./cleanuperr/logs:/var/logs
       - ./cleanuperr/ignored.txt:/ignored.txt
     environment:
+      # general settings
       - TZ=America/New_York
       - DRY_RUN=false
+      - HTTP_MAX_RETRIES=0
+      - HTTP_TIMEOUT=100
 
+      # logging
       - LOGGING__LOGLEVEL=Information
       - LOGGING__FILE__ENABLED=false
       - LOGGING__FILE__PATH=/var/logs/
       - LOGGING__ENHANCED=true
 
+      # job triggers
       - TRIGGERS__QUEUECLEANER=0 0/5 * * * ?
       - TRIGGERS__CONTENTBLOCKER=0 0/5 * * * ?
       - TRIGGERS__DOWNLOADCLEANER=0 0 * * * ?
 
+      # queue cleaner
       - QUEUECLEANER__ENABLED=true
       - QUEUECLEANER__IGNORED_DOWNLOADS_PATH=/ignored.txt
       - QUEUECLEANER__RUNSEQUENTIALLY=true
+
+      # failed imports
       - QUEUECLEANER__IMPORT_FAILED_MAX_STRIKES=5
       - QUEUECLEANER__IMPORT_FAILED_IGNORE_PRIVATE=false
       - QUEUECLEANER__IMPORT_FAILED_DELETE_PRIVATE=false
-      # - QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__0=title mismatch
-      # - QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__1=manual import required
+      - QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__0=title mismatch
+      - QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__1=manual import required
+
+      # stalled downloads
       - QUEUECLEANER__STALLED_MAX_STRIKES=5
       - QUEUECLEANER__STALLED_RESET_STRIKES_ON_PROGRESS=false
       - QUEUECLEANER__STALLED_IGNORE_PRIVATE=false
       - QUEUECLEANER__STALLED_DELETE_PRIVATE=false
 
+      # slow downloads
+      - QUEUECLEANER__SLOW_MAX_STRIKES=5
+      - QUEUECLEANER__SLOW_RESET_STRIKES_ON_PROGRESS=true
+      - QUEUECLEANER__SLOW_IGNORE_PRIVATE=false
+      - QUEUECLEANER__SLOW_DELETE_PRIVATE=false
+      - QUEUECLEANER__SLOW_MIN_SPEED=1MB
+      - QUEUECLEANER__SLOW_MAX_TIME=20
+      - QUEUECLEANER__SLOW_IGNORE_ABOVE_SIZE=60GB
+
+      # content blocker
       - CONTENTBLOCKER__ENABLED=true
       - CONTENTBLOCKER__IGNORED_DOWNLOADS_PATH=/ignored.txt
       - CONTENTBLOCKER__IGNORE_PRIVATE=false
       - CONTENTBLOCKER__DELETE_PRIVATE=false
 
+      # download cleaner
       - DOWNLOADCLEANER__ENABLED=true
       - DOWNLOADCLEANER__IGNORED_DOWNLOADS_PATH=/ignored.txt
       - DOWNLOADCLEANER__DELETE_PRIVATE=false
+
+      # categories to seed until max ratio or min seed time has been reached
       - DOWNLOADCLEANER__CATEGORIES__0__NAME=tv-sonarr
       - DOWNLOADCLEANER__CATEGORIES__0__MAX_RATIO=-1
       - DOWNLOADCLEANER__CATEGORIES__0__MIN_SEED_TIME=0
@@ -212,6 +235,8 @@ services:
       - DOWNLOADCLEANER__CATEGORIES__1__MAX_SEED_TIME=240
 
       - DOWNLOAD_CLIENT=none
+      # OR
+      # - DOWNLOAD_CLIENT=disabled
       # OR
       # - DOWNLOAD_CLIENT=qBittorrent
       # - QBITTORRENT__URL=http://localhost:8080
