@@ -131,10 +131,14 @@ I've seen a few discussions on this type of naming and I've decided that I didn'
 1. Set `QUEUECLEANER__ENABLED` to `true`.
 2. Set `QUEUECLEANER__IMPORT_FAILED_MAX_STRIKES` to a desired value.
 3. Optionally set failed import message patterns to ignore using `QUEUECLEANER__IMPORT_FAILED_IGNORE_PATTERNS__<NUMBER>`.
-4. Set `DOWNLOAD_CLIENT` to `none`.
+4. Set `DOWNLOAD_CLIENT` to `none`(works only for usenet) or `disabled` (works for both usenet and torrent).
 
-> [!WARNING]
-> When `DOWNLOAD_CLIENT=none`, no other action involving a download client would work (e.g. content blocking, removing stalled downloads, excluding private trackers).
+> [!IMPORTANT]
+> When `DOWNLOAD_CLIENT=disabled`, no other action involving a download client would work (e.g. content blocking, removing stalled downloads, excluding private trackers).
+> 
+> When the download client is set to `disabled`, the queue cleaner will be able to remove items that are failed to be imported even if there is no download client configured. This means that all downloads, including private ones, will be completely removed.
+>
+> Setting `DOWNLOAD_CLIENT=disabled` means you don't care about seeding, ratio, H&R and potentially losing your private tracker account.
 
 ## Usage
 
