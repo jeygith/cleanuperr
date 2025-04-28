@@ -1,5 +1,6 @@
 *.sample
 *.sample*
+*sample*
 *sample.avchd
 *sample.avi
 *sample.mkv
